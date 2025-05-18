@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import './css/LearnPage.css';
-
+ 
 const animals = [
     { emoji: "🦁", name: "lion", image: "/images/animals/lion.png" },
     { emoji: "🐶", name: "dog", image: "/images/animals/dog.png" },
@@ -10,11 +10,11 @@ const animals = [
     { emoji: "🦩", name: "flamingo", image: "/images/animals/flamingo.png" },
     { emoji: "🐘", name: "elephant", image: "/images/animals/elephand.png" }
 ];
-
+ 
 export default function LearnPage() {
     const navigate = useNavigate();
     const totalLevels = 5;
-
+ 
     const [randomAnimal, setRandomAnimal] = useState(animals[0]);
     const [randomCount, setRandomCount] = useState(0);
     const [userAnswer, setUserAnswer] = useState("");
@@ -24,7 +24,7 @@ export default function LearnPage() {
     const [canRetry, setCanRetry] = useState(false);
     const [gameWon, setGameWon] = useState(false);
     const [shake, setShake] = useState(false);
-
+ 
     const videoRef = useRef(null);
     const ws = useRef(null);
     const audioRef = useRef(null);
@@ -32,7 +32,7 @@ export default function LearnPage() {
     const failAudioRef = useRef(null);
     const lastValidFingerCountRef = useRef(null);
     const [fingerCount, setFingerCount] = useState(null);
-
+ 
     const generateChallenge = () => {
         const animal = animals[Math.floor(Math.random() * animals.length)];
         const count = Math.floor(Math.random() * 10) + 1;
@@ -42,7 +42,7 @@ export default function LearnPage() {
         setResult("");
         setCanRetry(false);
         lastValidFingerCountRef.current = null;
-
+ 
         if (audioRef.current) {
             audioRef.current.pause();
             audioRef.current.currentTime = 0;
@@ -52,11 +52,11 @@ export default function LearnPage() {
             console.warn("\ud83d\udd07 learn.mp3 тоглуулахад алдаа:", err);
         });
     };
-
+ 
     useEffect(() => {
         generateChallenge();
     }, []);
-
+ 
     useEffect(() => {
         const startCamera = async () => {
             try {
@@ -66,11 +66,11 @@ export default function LearnPage() {
                 console.error("\ud83c\udfa5 Камер асаахад алдаа:", err);
             }
         };
-
+ 
         startCamera();
-
+ 
         ws.current = new WebSocket("ws://localhost:8765");
-
+ 
         ws.current.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.fingers !== undefined) {
@@ -80,7 +80,7 @@ export default function LearnPage() {
                 }
             }
         };
-
+ 
         const interval = setInterval(() => {
             if (
                 videoRef.current &&
@@ -96,13 +96,13 @@ export default function LearnPage() {
                 ws.current.send(JSON.stringify({ image }));
             }
         }, 300);
-
+ 
         return () => {
             clearInterval(interval);
             if (ws.current) ws.current.close();
         };
     }, []);
-
+ 
     useEffect(() => {
         if (
             fingerCount === 0 &&
@@ -112,14 +112,14 @@ export default function LearnPage() {
             handleCheckWithValue(lastValidFingerCountRef.current);
         }
     }, [fingerCount]);
-
+ 
     useEffect(() => {
         if (gameWon) {
             confetti({ particleCount: 100, spread: 80 });
             setTimeout(() => navigate('/Success1'), 1500);
         }
     }, [gameWon, navigate]);
-
+ 
     const handleCheck = () => {
         const value =
             userAnswer !== ""
@@ -127,10 +127,10 @@ export default function LearnPage() {
                 : fingerCount > 0
                     ? fingerCount
                     : lastValidFingerCountRef.current;
-
+ 
         handleCheckWithValue(value);
     };
-
+ 
     function fireConfettiExplosion() {
         const count = 200;
         const defaults = {
@@ -141,7 +141,7 @@ export default function LearnPage() {
             scalar: 1.2,
             zIndex: 9999,
         };
-
+ 
         function shoot(x, y) {
             confetti({
                 ...defaults,
@@ -149,14 +149,14 @@ export default function LearnPage() {
                 origin: { x, y }
             });
         }
-
+ 
         shoot(0.1, 0.5);
         shoot(0.3, 0.3);
         shoot(0.5, 0.5);
         shoot(0.7, 0.3);
         shoot(0.9, 0.5);
     }
-
+ 
     const handleCheckWithValue = (value) => {
         if (value === "" || value === null || value === undefined) {
             setShake(true);
@@ -164,9 +164,9 @@ export default function LearnPage() {
             setCanRetry(true);
             return;
         }
-
+ 
         const answerToCheck = parseInt(value, 10);
-
+ 
         if (answerToCheck === randomCount) {
             if (successAudioRef.current) {
                 successAudioRef.current.pause();
@@ -174,14 +174,14 @@ export default function LearnPage() {
             }
             successAudioRef.current = new Audio('/sounds/success.mp3');
             successAudioRef.current.play();
-
+ 
             fireConfettiExplosion();
-
+ 
             const nextLevel = level + 1;
             setLevel(nextLevel);
             setResult("🎉 Зөв байна!");
             setCanRetry(false);
-
+ 
             if (nextLevel === totalLevels) {
                 setGameWon(true);
             } else {
@@ -196,7 +196,7 @@ export default function LearnPage() {
             }
             failAudioRef.current = new Audio('/sounds/incorrect.mp3');
             failAudioRef.current.play();
-
+ 
             setShake(true);
             setShakeCamera(true);
             setTimeout(() => {
@@ -206,41 +206,41 @@ export default function LearnPage() {
             setCanRetry(true);
         }
     };
-
+ 
     const progressWidth = `${(level / totalLevels) * 100}%`;
-
+ 
     return (
         <div className="game-container1">
             <div className="top-bar1">
                 <button aria-label="Pause game" className="pause-button1" onClick={() => navigate('/page1/pause')}>
                     <span className="pause-icon1">
-                    <div></div>
-                    <div></div>
+                        <div></div>
+                        <div></div>
                     </span>
-                </button>    
+                </button>
                 <div className="progress-wrapper1" aria-label="Level progress bar">
-                        <div className="level-progress-bar1" role="progressbar" aria-valuemin={0} aria-valuemax={totalLevels} aria-valuenow={level}>
+                    <div className="level-progress-bar1" role="progressbar" aria-valuemin={0} aria-valuemax={totalLevels} aria-valuenow={level}>
                         <div className="level-progress-fill1" style={{ width: progressWidth }}></div>
-                        </div>
+                    </div>
                 </div>
             </div>
-
+ 
             <div className="learn-content1">
                 <div className="learn-images1">
                     {[...Array(randomCount)].map((_, index) => (
                         <img key={index} src={randomAnimal.image} alt={randomAnimal.name} className="animal-img1" />
                     ))}
                 </div>
-
+ 
                 <div className="learn-video-side1">
                     <video
-  ref={videoRef}
-  autoPlay
-  width="640"
-  height="480"
-  style={{ transform: "scaleX(-1)" }}
-  className={shakeCamera ? "shake-camera" : ""}
- />
+                        ref={videoRef}
+                        autoPlay
+                        width="640"
+                        height="480"
+                        style={{ transform: "scaleX(-1)" }}
+                        className={shakeCamera ? "shake-camera" : ""}
+                    />
                     <h3 className="finger-count1">
                         Танигдсан хурууны тоо:{" "}
                         <span className="highlighted-number1">
@@ -251,18 +251,18 @@ export default function LearnPage() {
                                     : "..."}
                         </span>
                     </h3>
-
+ 
                     <input
-  type="number"
-  placeholder="Хэдэн амьтан байна?"
-  value={userAnswer}
-  onChange={(e) => setUserAnswer(e.target.value)}
-  className={`learn-input ${shake ? "shake" : ""}`}
-/>
+                        type="number"
+                        placeholder="Хэдэн амьтан байна?"
+                        value={userAnswer}
+                        onChange={(e) => setUserAnswer(e.target.value)}
+                        className={`learn-input ${shake ? "shake" : ""}`}
+                    />
                     <button onClick={handleCheck} className="check-btn1">
                         Шалгах
                     </button>
-
+ 
                     <div className="result-text1">{result}</div>
                 </div>
             </div>
