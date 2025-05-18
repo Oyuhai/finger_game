@@ -223,13 +223,12 @@ export default function ThinkPage() {
         </section>
 
         <div className="learn-video-side">
-          <video
+          <video className="video1"
             ref={videoRef}
             autoPlay
             width="400px"
             height="480"
             style={{ transform: "scaleX(-1)" }}
-            className={shakeCamera ? "shake-camera" : ""}
           />
           <h3 className="finger-count">
             Танигдсан хурууны тоо: {" "}
